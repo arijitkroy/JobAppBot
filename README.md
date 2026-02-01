@@ -1,40 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Job Application Assistant (Compression Demo)
+
+A Next.js application designed to streamline the job application process by compressing long job descriptions and resumes using the [Scaledown API](https://scaledown.ai).
+
+## Features
+
+- **Prompt Compression**: Significantly reduces the token count of job descriptions and resumes while preserving key information.
+- **Task-Based Analysis**: Supports various tasks such as:
+  - Summarizing Jobs
+  - Getting Resume Tips
+  - Extracting Keywords
+  - Drafting Cover Letters
+- **PDF Resume Upload**: Automatically extracts text from uploaded PDF resumes.
+- **Real-time Statistics**: Displays original length, compressed length, and compression percentage.
+
+## Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
 
 ## Getting Started
 
-First, run the development server:
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository_url>
+    cd job-app-bot
+    ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3.  **Configure Environment Variables:**
+    Create a `.env.local` file in the root directory and add your Scaledown API key:
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+    ```env
+    SCALEDOWN_API_KEY=your_api_key_here
+    ```
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+5.  **Open the application:**
+    Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Tech Stack
 
-## Learn More
+- **Framework**: Next.js
+- **Styling**: Tailwind CSS
+- **API Integration**: Scaledown API (for text compression)
+- **PDF Processing**: `pdfjs-dist` (Server-side parsing)
 
-To learn more about Next.js, take a look at the following resources:
+## Usage
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+1.  Select a **Task** (e.g., "Summarize Job").
+2.  Paste the **Job Description**.
+3.  (Optional) Provide your **Resume**:
+    - Paste text directly.
+    - Click **Upload PDF** to auto-fill (supports `.pdf` files).
+    - Use **🗑️ Clear** to remove the uploaded file and text.
+4.  Click **Compress**.
+5.  View the compressed result and efficiency statistics.

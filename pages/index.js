@@ -6,6 +6,45 @@ export default function Home() {
   const [resume, setResume] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/parse-pdf", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      setResume(data.text);
+    } catch (err) {
+      alert("Failed to parse PDF");
+      console.error(err);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function deleteFile() {
+    try {
+      await fetch("/api/delete-file", { method: "DELETE" });
+      setResume("");
+      // Reset file input value
+      const fileInput = document.getElementById("resume-upload");
+      if (fileInput) fileInput.value = "";
+    } catch (err) {
+      console.error("Failed to delete file", err);
+    }
+  }
 
   async function analyze() {
     setLoading(true);
@@ -23,9 +62,11 @@ export default function Home() {
       });
 
       const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
       setResult(data);
-    } catch {
-      alert("Compression failed");
+    } catch (err) {
+      alert(err.message || "Compression failed");
     } finally {
       setLoading(false);
     }
@@ -54,19 +95,51 @@ export default function Home() {
 
         <textarea
           rows={8}
-          className="w-full p-3 mb-4 bg-gray-800 border border-gray-700 rounded"
-          placeholder="Paste job description..."
+          className="w-full p-3 mb-4 bg-gray-800 border border-gray-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition"
+          placeholder="Paste Job Description..."
           value={job}
           onChange={(e) => setJob(e.target.value)}
         />
 
-        <textarea
-          rows={6}
-          className="w-full p-3 mb-4 bg-gray-800 border border-gray-700 rounded"
-          placeholder="Paste resume (optional)..."
-          value={resume}
-          onChange={(e) => setResume(e.target.value)}
-        />
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <label className="text-gray-400 font-medium">Resume</label>
+            <div className="flex items-center gap-2">
+              {uploading && <span className="text-sm text-yellow-500 animate-pulse">Parsing...</span>}
+              <input
+                type="file"
+                accept=".pdf"
+                id="resume-upload"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              
+              {resume && (
+                <button
+                  onClick={deleteFile}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs px-3 py-1 rounded border border-red-500/20 transition flex items-center gap-1"
+                >
+                  🗑️ Clear
+                </button>
+              )}
+
+              <label
+                htmlFor="resume-upload"
+                className="cursor-pointer bg-green-800 hover:bg-green-700 text-white text-xs px-3 py-2 rounded border border-gray-700 transition flex items-center gap-1"
+              >
+                <span>Upload PDF</span>
+              </label>
+            </div>
+          </div>
+          
+          <textarea
+            rows={6}
+            className="w-full p-3 bg-gray-800 border border-gray-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none transition"
+            placeholder="Paste resume text or upload a PDF..."
+            value={resume}
+            onChange={(e) => setResume(e.target.value)}
+          />
+        </div>
 
         <button
           onClick={analyze}
