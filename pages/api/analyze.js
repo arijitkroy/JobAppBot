@@ -1,4 +1,5 @@
 import { compressPrompt } from "../../lib/scaledown";
+import { generateText } from "../../lib/ollama";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -8,24 +9,48 @@ export default async function handler(req, res) {
   try {
     const { job_description, resume_text, task } = req.body;
 
-    if (!job_description || job_description.length < 100) {
-      return res.status(400).json({
-        error: "Job description must be at least 100 characters",
-      });
+    // Validate based on task
+    if (task === "resume_tips" || task === "review") {
+        if (!resume_text || resume_text.length < 50) {
+             return res.status(400).json({ error: "Resume text must be at least 50 characters for this task." });
+        }
+    } else {
+        // Default tasks (summarize, keywords, cover_letter) need job description
+        if (!job_description || job_description.length < 50) {
+             return res.status(400).json({ error: "Job description must be at least 50 characters." });
+        }
     }
 
-    const basePrompt = `${job_description} ${resume_text ? `Resume:\n${resume_text}` : ""}`.trim();
+    const parts = [];
+    if (job_description) parts.push(`Job Description:\n${job_description}`);
+    if (resume_text) parts.push(`Resume:\n${resume_text}`);
+    
+    const basePrompt = parts.join("\n\n").trim();
+    
+    if (!basePrompt) {
+        return res.status(400).json({ error: "No input provided for analysis." });
+    }
+
     const taskPrompt = `Task: ${task || "Summarize this job description"}`;
 
+    // Step 1: Compress the prompt
+    console.log("Compressing prompt...");
     const result = await compressPrompt(basePrompt, taskPrompt);
+    const compressedPrompt = result.compressed_prompt;
+
+    // Step 2: Generate text using Ollama
+    console.log("Generating text with compressed prompt...");
+    const generatedText = await generateText(compressedPrompt);
+
     const originalChars = basePrompt.length;
-    const compressedChars = result.compressed_prompt.length;
+    const compressedChars = compressedPrompt.length;
     const compressionPercent = (
       ((originalChars - compressedChars) / originalChars) * 100
     ).toFixed(2);
 
     res.status(200).json({
-      compressedPrompt: result.compressed_prompt,
+      generatedText,
+      compressedPrompt, // Keeping it for debug/metrics
       originalChars,
       compressedChars,
       originalTokens: result.original_prompt_tokens,

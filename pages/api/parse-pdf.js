@@ -1,5 +1,6 @@
 import formidable from "formidable";
 import fs from "fs";
+import path from "path";
 // Target the mjs file directly for ESM support
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 
@@ -39,7 +40,14 @@ export default async function handler(req, res) {
       // Load the PDF document
       // Convert buffer to Uint8Array for pdfjs-dist
       const uint8Array = new Uint8Array(dataBuffer);
-      const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
+      
+      // Configure the standard font path
+      const standardFontDataUrl = path.join(process.cwd(), "node_modules/pdfjs-dist/standard_fonts/").split(path.sep).join("/");
+      
+      const loadingTask = pdfjsLib.getDocument({ 
+        data: uint8Array,
+        standardFontDataUrl,
+      });
       const pdfDocument = await loadingTask.promise;
       
       let fullText = "";

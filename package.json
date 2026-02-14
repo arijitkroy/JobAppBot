@@ -8,11 +8,16 @@
     "start": "next start"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "formidable": "^3.5.4",
     "next": "16.1.6",
+    "node-fetch": "^2.7.0",
+    "ollama": "^0.6.3",
     "pdfjs-dist": "^5.4.530",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
+    "serpapi": "^2.2.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
